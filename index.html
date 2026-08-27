@@ -87,6 +87,25 @@ button{
   margin-top:10px;
 }
 
+.secondary{
+  width:100%;
+  background:#f4e7ee;
+  color:#5B1745;
+  border:1px solid #eadfe5;
+  margin-top:10px;
+}
+
+.file-input{
+  display:none;
+}
+
+.note{
+  font-size:12px;
+  line-height:1.45;
+  color:#766a72;
+  margin-top:10px;
+}
+
 .green{color:#16854d}
 .red{color:#c53a4b}
 .plum{color:#5B1745}
@@ -347,6 +366,20 @@ Limite disponível:
 
 <div id="metaResultado"></div>
 
+<div class="card">
+<h3>Meus Dados</h3>
+<p class="sub">Seus dados ficam salvos neste aparelho e navegador.</p>
+
+<button class="primary" id="fazerBackup">Fazer backup</button>
+<button class="secondary" id="restaurarBackup">Restaurar backup</button>
+<input class="file-input" id="arquivoBackup" type="file" accept=".json,application/json">
+
+<p class="note">
+Guarde o arquivo de backup em um local seguro, como o Google Drive.
+Ao restaurar um backup, os dados atuais deste navegador serão substituídos.
+</p>
+</div>
+
 </section>
 
 </main>
@@ -575,6 +608,136 @@ function atualizarMeta(){
  </div>
  `;
 }
+
+function baixarArquivo(nome, conteudo){
+ const blob = new Blob([conteudo], {type:"application/json"});
+ const url = URL.createObjectURL(blob);
+ const a = document.createElement("a");
+
+ a.href = url;
+ a.download = nome;
+
+ document.body.appendChild(a);
+ a.click();
+ a.remove();
+
+ setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+
+$("fazerBackup").onclick=()=>{
+
+ const pacote={
+  app:"ELA EM ALTA - 30 Dias no Controle",
+  versao:1,
+  criadoEm:new Date().toISOString(),
+  dados,
+  cartao,
+  meta
+ };
+
+ const data = new Date();
+
+ const nome =
+  "ela-em-alta-backup-" +
+  data.getFullYear() + "-" +
+  String(data.getMonth()+1).padStart(2,"0") + "-" +
+  String(data.getDate()).padStart(2,"0") +
+  ".json";
+
+ baixarArquivo(
+  nome,
+  JSON.stringify(pacote,null,2)
+ );
+
+ alert("Backup criado! Guarde o arquivo em um local seguro.");
+};
+
+$("restaurarBackup").onclick=()=>{
+ $("arquivoBackup").value="";
+ $("arquivoBackup").click();
+};
+
+$("arquivoBackup").onchange=async (evento)=>{
+
+ const arquivo=
+ evento.target.files &&
+ evento.target.files[0];
+
+ if(!arquivo) return;
+
+ try{
+
+  const texto=await arquivo.text();
+  const pacote=JSON.parse(texto);
+
+  if(
+   !pacote ||
+   pacote.app!=="ELA EM ALTA - 30 Dias no Controle" ||
+   !Array.isArray(pacote.dados) ||
+   !pacote.cartao ||
+   typeof pacote.cartao!=="object"
+  ){
+   throw new Error("Arquivo inválido");
+  }
+
+  const confirmar=confirm(
+   "Restaurar este backup?\n\nOs dados atuais deste navegador serão substituídos."
+  );
+
+  if(!confirmar) return;
+
+  dados=pacote.dados;
+
+  cartao={
+   limite:Number(pacote.cartao.limite)||0,
+   fatura:Number(pacote.cartao.fatura)||0
+  };
+
+  meta=pacote.meta || null;
+
+  localStorage.setItem(
+   "elaEmAltaDados",
+   JSON.stringify(dados)
+  );
+
+  localStorage.setItem(
+   "elaEmAltaCartao",
+   JSON.stringify(cartao)
+  );
+
+  if(meta){
+
+   localStorage.setItem(
+    "elaEmAltaMeta",
+    JSON.stringify(meta)
+   );
+
+  }else{
+
+   localStorage.removeItem(
+    "elaEmAltaMeta"
+   );
+
+  }
+
+  atualizar();
+  atualizarCartao();
+  atualizarMeta();
+
+  alert("Backup restaurado com sucesso!");
+
+ }catch(e){
+
+  alert(
+   "Não foi possível restaurar. Selecione um backup válido do ELA EM ALTA."
+  );
+
+ }finally{
+
+  evento.target.value="";
+
+ }
+};
 
 atualizar();
 atualizarCartao();
