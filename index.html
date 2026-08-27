@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#5B1745">
+<title>Ela em Alta — 30 Dias no Controle</title>
+<style>
+:root{--plum:#5B1745;--bg:#fbf8fa;--line:#eadfe5;--muted:#786b74;--green:#287a45;--red:#c83d4b;--blue:#285f8f}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:#30272e}
+.app{max-width:520px;margin:auto;padding:18px 16px 40px}.brand{font-size:12px;font-weight:800;color:var(--plum)}
+h1{margin:12px 0 4px;color:var(--plum)}.sub{color:var(--muted);margin:0 0 18px}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:10px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.grid .card{margin:0}.wide{grid-column:1/-1}
+.label{font-size:11px;font-weight:800;color:var(--muted)}.money{font-size:20px;font-weight:800;margin-top:5px}
+.green{color:var(--green)}.red{color:var(--red)}.plum{color:var(--plum)}.blue{color:var(--blue)}
+.entry{background:#fff4c7;border:2px solid #e3b845}.field{margin:12px 0}.field label{display:block;font-size:12px;font-weight:800;margin-bottom:5px}
+.field input,.field select{width:100%;padding:14px;border:1px solid var(--line);border-radius:12px;background:#fff;font-size:16px}
+.primary{width:100%;padding:14px;border:0;border-radius:12px;background:var(--plum);color:#fff;font-weight:800;font-size:15px}
+.tabs{display:flex;gap:8px;margin:16px 0}.tabs button{flex:1;padding:10px;border:1px solid var(--line);border-radius:12px;background:#fff;font-weight:800;color:var(--muted)}
+.tabs button.on{background:var(--plum);color:#fff}.screen{display:none}.screen.on{display:block}.row{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.row small{color:var(--muted)}.danger{border:0;background:#fff0f1;color:var(--red);padding:6px 9px;border-radius:8px}.hint{background:#f7eef3;border-radius:14px;padding:14px}
+</style>
+</head>
+<body>
+<main class="app">
+<div class="brand">ELA EM ALTA • 30 DIAS NO CONTROLE</div>
+<div class="tabs">
+<button class="on" data-target="home">Painel</button>
+<button data-target="moves">Movimentos</button>
+<button data-target="card">Cartão</button>
+<button data-target="goals">Objetivos</button>
+</div>
+
+<section id="home" class="screen on">
+<h1>Seu mês em um olhar</h1><p class="sub">Digite os valores e a conta acontece na hora.</p>
+<div class="card entry">
+<div class="field"><label>Mês</label><input id="month" type="month"></div>
+<div class="field"><label>Quanto entrou?</label><input id="quickIncome" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0,00"></div>
+<div class="field"><label>Quanto já saiu?</label><input id="quickExpense" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0,00"></div>
+<div class="field"><label>Quanto ainda está comprometido?</label><input id="quickCommitted" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0,00"></div>
+<button id="saveQuick" class="primary" type="button">CALCULAR E SALVAR</button>
+</div>
+<div class="grid">
+<div class="card"><div class="label">ENTRADAS</div><div id="income" class="money green">R$ 0,00</div></div>
+<div class="card"><div class="label">SAÍDAS</div><div id="expense" class="money red">R$ 0,00</div></div>
+<div class="card"><div class="label">COMPROMETIDO</div><div id="committed" class="money plum">R$ 0,00</div></div>
+<div class="card"><div class="label">DISPONÍVEL</div><div id="available" class="money blue">R$ 0,00</div></div>
+<div class="card wide"><div class="label">SUGESTÃO PARA GUARDAR</div><div id="saveAmount" class="money green">R$ 0,00</div></div>
+</div>
+<h3>Situação do mês</h3><div id="advice" class="hint"></div>
+</section>
+
+<section id="moves" class="screen"><h1>Movimentações</h1><p class="sub">Registre quando quiser mais detalhe.</p>
+<div class="card entry">
+<div class="field"><label>Tipo</label><select id="type"><option>Saída</option><option>Entrada</option></select></div>
+<div class="field"><label>Valor</label><input id="value" type="number" min="0.01" step="0.01" inputmode="decimal"></div>
+<div class="field"><label>Descrição</label><input id="desc" placeholder="Ex.: Mercado"></div>
+<div class="field"><label>Categoria</label><select id="cat"><option>Moradia</option><option>Alimentação</option><option>Transporte</option><option>Saúde</option><option>Lazer</option><option>Compras</option><option>Assinaturas</option><option>Salário</option><option>Outros</option></select></div>
+<button id="addMove" class="primary" type="button">ADICIONAR</button>
+</div><div id="moveList"></div></section>
+
+<section id="card" class="screen"><h1>Cartão</h1><div class="card entry">
+<div class="field"><label>Limite total</label><input id="limit" type="number" min="0" step="0.01"></div>
+<div class="field"><label>Fatura atual</label><input id="bill" type="number" min="0" step="0.01"></div>
+<button id="saveCard" class="primary" type="button">SALVAR CARTÃO</button></div>
+<div class="grid"><div class="card"><div class="label">LIMITE DISPONÍVEL</div><div id="limitAvailable" class="money blue"></div></div><div class="card"><div class="label">FATURA ATUAL</div><div id="billView" class="money plum"></div></div></div></section>
+
+<section id="goals" class="screen"><h1>Objetivos</h1><div class="card entry">
+<div class="field"><label>Nome da meta</label><input id="goalName" placeholder="Ex.: Reserva"></div>
+<div class="field"><label>Valor da meta</label><input id="goalTarget" type="number" min="0" step="0.01"></div>
+<div class="field"><label>Já tenho</label><input id="goalHave" type="number" min="0" step="0.01"></div>
+<button id="addGoal" class="primary" type="button">SALVAR OBJETIVO</button></div><div id="goalList"></div></section>
+</main>
+
+<script>
+(function(){
+const K='elaEmAltaFunctionalV1';
+const BRL=new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'});
+let d=JSON.parse(localStorage.getItem(K)||'{"months":{},"moves":[],"card":{"limit":0,"bill":0},"goals":[]}');
+const $=id=>document.getElementById(id);
+const now=new Date(), ym=now.toISOString().slice(0,7);
+$('month').value=ym;
+
+function persist(){localStorage.setItem(K,JSON.stringify(d));render()}
+function monthData(){const m=$('month').value||ym; return d.months[m]||{income:0,expense:0,committed:0}}
+function render(){
+ const x=monthData(), av=x.income-x.expense-x.committed;
+ $('quickIncome').value=x.income||'';$('quickExpense').value=x.expense||'';$('quickCommitted').value=x.committed||'';
+ $('income').textContent=BRL.format(x.income);$('expense').textContent=BRL.format(x.expense);$('committed').textContent=BRL.format(x.committed);$('available').textContent=BRL.format(av);$('saveAmount').textContent=BRL.format(Math.max(av*.30,0));
+ $('advice').textContent=av<0?'Seu mês está no negativo. Revise gastos e compromissos antes de assumir novas parcelas.':av>0?'Você ainda tem valor disponível. Considere guardar uma parte antes de aumentar os gastos.':'Preencha os três valores acima para ver sua situação.';
+ $('moveList').innerHTML=d.moves.length?d.moves.map(x=>`<div class="card row"><div><b>${x.desc}</b><br><small>${x.cat}</small></div><div><b class="${x.type==='Entrada'?'green':'red'}">${x.type==='Entrada'?'+':'-'} ${BRL.format(x.value)}</b><br><button class="danger" data-delmove="${x.id}">Excluir</button></div></div>`).join(''):'<div class="card"><small>Nenhuma movimentação ainda.</small></div>';
+ $('limit').value=d.card.limit||'';$('bill').value=d.card.bill||'';$('limitAvailable').textContent=BRL.format(Math.max(d.card.limit-d.card.bill,0));$('billView').textContent=BRL.format(d.card.bill);
+ $('goalList').innerHTML=d.goals.length?d.goals.map(g=>`<div class="card row"><div><b>${g.name}</b><br><small>${BRL.format(g.have)} de ${BRL.format(g.target)}</small></div><button class="danger" data-delgoal="${g.id}">Excluir</button></div>`).join(''):'<div class="card"><small>Nenhum objetivo ainda.</small></div>';
+}
+document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('on'));b.classList.add('on');document.querySelectorAll('.screen').forEach(x=>x.classList.remove('on'));$(b.dataset.target).classList.add('on')}));
+$('month').addEventListener('change',render);
+$('saveQuick').addEventListener('click',()=>{const m=$('month').value||ym;d.months[m]={income:Number($('quickIncome').value)||0,expense:Number($('quickExpense').value)||0,committed:Number($('quickCommitted').value)||0};persist()});
+$('addMove').addEventListener('click',()=>{const v=Number($('value').value)||0;if(v<=0)return alert('Digite um valor maior que zero.');const desc=$('desc').value.trim()||'Movimentação';d.moves.unshift({id:Date.now(),type:$('type').value,value:v,desc,cat:$('cat').value});$('value').value='';$('desc').value='';persist()});
+$('saveCard').addEventListener('click',()=>{d.card.limit=Number($('limit').value)||0;d.card.bill=Number($('bill').value)||0;persist()});
+$('addGoal').addEventListener('click',()=>{const target=Number($('goalTarget').value)||0;if(target<=0)return alert('Digite o valor da meta.');d.goals.push({id:Date.now(),name:$('goalName').value.trim()||'Objetivo',target,have:Number($('goalHave').value)||0});$('goalName').value='';$('goalTarget').value='';$('goalHave').value='';persist()});
+document.addEventListener('click',e=>{if(e.target.dataset.delmove){d.moves=d.moves.filter(x=>x.id!=e.target.dataset.delmove);persist()}if(e.target.dataset.delgoal){d.goals=d.goals.filter(x=>x.id!=e.target.dataset.delgoal);persist()}});
+render();
+})();
+</script>
+</body></html>
